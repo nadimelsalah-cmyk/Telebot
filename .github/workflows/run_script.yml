@@ -32,26 +32,26 @@ jobs:
     - name: Run Securityboulevard script
       run: python Securityboulevard.py
       env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.CHAT_ID }}
 
     - name: Run csoonline script
       run: python csoonline.py
       env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.CHAT_ID }}
 
     - name: Run helpnetsecurity script
       run: python helpnetsecurity.py
       env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.CHAT_ID }}
 
     - name: Run thehackernews script
       run: python thehackernews.py
       env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.CHAT_ID }}
 
     - name: Re-encrypt sent_articles.db
       run: |
