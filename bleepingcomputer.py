@@ -1,8 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import asyncio
-import os
-from main import DatabaseManager, TelegramBot  # Your existing main.py classes
+from main import DatabaseManager, TelegramBot  # Import your classes
 
 db_manager = DatabaseManager()
 telegram_bot = TelegramBot()
@@ -26,8 +25,8 @@ def scrape_latest_article():
                 link_tag = article_li.find('a', href=True)
                 title_tag = link_tag.find('p') if link_tag else None
 
-                title = title_tag.text.strip() if title_tag else "No Title"
                 link = link_tag['href'] if link_tag else None
+                title = title_tag.text.strip() if title_tag else "No Title"
                 source = "bleepingcomputer.com"
 
                 return title, link, source
