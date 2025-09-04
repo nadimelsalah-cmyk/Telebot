@@ -1,0 +1,63 @@
+name: Run Python Scripts and Update Encrypted Database
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # runs every 5 minutes
+  workflow_dispatch:  # allows manual trigger
+
+jobs:
+  run-scripts:
+    runs-on: ubuntu-latest
+    env:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      CHAT_ID: ${{ secrets.CHAT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.3
+
+      - name: Decrypt sent_articles.db if exists
+        run: |
+          if [ -f sent_articles.db.gpg ]; then
+            gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.GPG_PASSPHRASE }}" \
+            --output sent_articles.db sent_articles.db.gpg
+          else
+            echo "No encrypted database found, creating a new empty database."
+            touch sent_articles.db
+          fi
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+
+      - name: Run helpnetsecurity script
+        run: python helpnetsecurity.py
+
+      - name: Run thehackernews script
+        run: python thehackernews.py
+
+      - name: Re-encrypt sent_articles.db
+        run: |
+          gpg --symmetric --cipher-algo AES256 --batch --yes --passphrase "${{ secrets.GPG_PASSPHRASE }}" \
+          --output sent_articles.db.gpg sent_articles.db
+
+      - name: Commit encrypted DB if changed
+        run: |
+          git config --global user.email "${{ secrets.USER_EMAIL }}"
+          git config --global user.name "GitHub Action"
+          git add sent_articles.db.gpg
+          git diff --cached --quiet || git commit -m "Update encrypted sent_articles.db"
+
+      - name: Push changes to main
+        run: |
+          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push origin main
