@@ -1,26 +1,32 @@
 import asyncio
 from playwright.async_api import async_playwright
-from main import DatabaseManager, TelegramBot
+from main import DatabaseManager, TelegramBot  # Your existing classes
 
 db_manager = DatabaseManager()
 telegram_bot = TelegramBot()
 
+
 async def scrape_latest_article():
-    url = "https://hackread.com/category/security/"
+    """Scrape the latest news article from Hackread using Playwright."""
+    url = "https://hackread.com/category/cryptocurrency/"
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
         await page.goto(url)
 
-        article = await page.query_selector(".cs-entry__inner.cs-entry__content")
-        if article:
-            title_el = await article.query_selector("h2.cs-entry__title a")
-            link_el = await article.query_selector("h2.cs-entry__title a")
+        # Grab the first article title and link
+        first_article = await page.query_selector("h2.cs-entry__title a")
 
-            title = await title_el.inner_text() if title_el else "No Title"
-            link = await link_el.get_attribute("href") if link_el else None
+        if first_article:
+            title = await first_article.inner_text()
+            link = await first_article.get_attribute("href")
+
+            # Normalize relative links
+            if link and link.startswith("/"):
+                link = f"https://hackread.com{link}"
+
             source = "hackread.com"
-
             await browser.close()
             return title, link, source
 
@@ -29,13 +35,17 @@ async def scrape_latest_article():
 
 
 async def main():
+    db_manager.create_table()
+
     article_info = await scrape_latest_article()
     if article_info:
         title, link, source = article_info
+
         if link and not db_manager.is_article_sent(link):
-            message = f"📢 *New Article Found!*\n\n*Title:* {title}\n🔗 {link}\n📰 Source: {source}"
+            message = f"Title: {title}\nLink: {link}\nSource: {source}"
             await telegram_bot.send_message(message)
             db_manager.mark_article_as_sent(link)
+            print("Sent:", message)
         else:
             print("Article already sent or invalid link.")
     else:
