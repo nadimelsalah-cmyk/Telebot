@@ -49,12 +49,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Securityboulevard script
-        run: python Securityboulevard.py
-
-      - name: Run csoonline script
-        run: python csoonline.py
-
       - name: Run helpnetsecurity script
         run: python helpnetsecurity.py
 
@@ -70,5 +64,8 @@ jobs:
         run: |
           git add sent_articles.db.gpg
           git diff --cached --quiet || git commit -m "Update encrypted sent_articles.db"
-          git pull origin main --rebase || echo "No remote changes"
-          git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }} main
+          
+          # Pull remote changes again to avoid fast-forward errors
+          git pull --rebase origin main || echo "No remote changes"
+          
+          git push origin main
