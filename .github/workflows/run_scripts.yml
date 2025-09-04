@@ -60,6 +60,9 @@ jobs:
       - name: Run bleepingcomputer script
         run: python bleepingcomputer.py
 
+      - name: Run bleepingcomputer script
+        run: python hackreadsecurity.py
+        
       - name: Re-encrypt database
         run: |
           gpg --symmetric --cipher-algo AES256 --batch --yes --passphrase "${{ secrets.GPG_PASSPHRASE }}" \
