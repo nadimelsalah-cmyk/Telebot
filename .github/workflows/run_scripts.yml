@@ -56,6 +56,9 @@ jobs:
 
       - name: Run thehackernews script
         run: python thehackernews.py
+        
+      - name: Run bleepingcomputer script
+        run: python bleepingcomputer.py
 
       - name: Re-encrypt database
         run: |
