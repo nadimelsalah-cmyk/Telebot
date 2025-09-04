@@ -66,8 +66,11 @@ jobs:
       - name: Run bleepingcomputer script
         run: python bleepingcomputer.py
 
-      - name: Run bleepingcomputer script
+      - name: Run hackreadsecurity script
         run: python hackreadsecurity.py
+
+      -name: Run hackreadhacking script
+        run: python hackreadhacking.py
         
       - name: Re-encrypt database
         run: |
