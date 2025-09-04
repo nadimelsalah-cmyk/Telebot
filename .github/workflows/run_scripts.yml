@@ -23,13 +23,21 @@ jobs:
         with:
           python-version: 3.12.3
 
-      - name: Decrypt sent_articles.db if exists
+      - name: Pull latest encrypted DB from remote
+        run: |
+          git config --global user.email "${{ secrets.USER_EMAIL }}"
+          git config --global user.name "GitHub Action"
+          git fetch origin main
+          git checkout main
+          git pull origin main --rebase || echo "No remote changes"
+
+      - name: Decrypt sent_articles.db or create new
         run: |
           if [ -f sent_articles.db.gpg ]; then
             gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.GPG_PASSPHRASE }}" \
             --output sent_articles.db sent_articles.db.gpg
           else
-            echo "No encrypted database found, creating a new empty database."
+            echo "No encrypted database found, creating new empty database."
             touch sent_articles.db
           fi
 
@@ -37,7 +45,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
 
       - name: Run helpnetsecurity script
         run: python helpnetsecurity.py
@@ -50,14 +57,8 @@ jobs:
           gpg --symmetric --cipher-algo AES256 --batch --yes --passphrase "${{ secrets.GPG_PASSPHRASE }}" \
           --output sent_articles.db.gpg sent_articles.db
 
-      - name: Commit encrypted DB if changed
+      - name: Commit and push encrypted DB if changed
         run: |
-          git config --global user.email "${{ secrets.USER_EMAIL }}"
-          git config --global user.name "GitHub Action"
           git add sent_articles.db.gpg
           git diff --cached --quiet || git commit -m "Update encrypted sent_articles.db"
-
-      - name: Push changes to main
-        run: |
-          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push origin main
+          git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }} main
