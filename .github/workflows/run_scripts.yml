@@ -69,7 +69,7 @@ jobs:
       - name: Run hackreadsecurity script
         run: python hackreadsecurity.py
 
-      -name: Run hackreadhacking script
+      - name: Run hackreadhacking script
         run: python hackreadhacking.py
         
       - name: Re-encrypt database
