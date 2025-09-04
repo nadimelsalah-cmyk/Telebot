@@ -2,7 +2,7 @@ name: Run Python Scripts and Update Encrypted Database
 
 on:
   schedule:
-    - cron: "*/30 * * * *"  
+    - cron: "*/5 * * * *"  
   workflow_dispatch:  
 jobs:
   run-scripts:
