@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,11 +29,9 @@ jobs:
           git config --global user.email "${{ secrets.USER_EMAIL }}"
           git config --global user.name "GitHub Action"
 
-      - name: Pull latest encrypted DB
+      - name: Pull latest changes
         run: |
-          git fetch origin main
-          git checkout main
-          git pull origin main --rebase || echo "No remote changes"
+          git pull origin main --rebase
 
       - name: Decrypt sent_articles.db or create new
         run: |
@@ -63,9 +62,10 @@ jobs:
       - name: Commit and push encrypted DB if changed
         run: |
           git add sent_articles.db.gpg
-          git diff --cached --quiet || git commit -m "Update encrypted sent_articles.db"
-          
-          # Pull remote changes again to avoid fast-forward errors
-          git pull --rebase origin main || echo "No remote changes"
-          
-          git push origin main
+          if ! git diff --cached --quiet; then
+            git commit -m "Update encrypted sent_articles.db"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "No changes to commit"
+          fi
