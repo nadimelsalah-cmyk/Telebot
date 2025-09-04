@@ -26,6 +26,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Playwright Python package
+        run: pip install playwright
+
+      - name: Install Playwright browsers
+        run: playwright install
+
       - name: Configure Git
         run: |
           git config --global user.email "${{ secrets.USER_EMAIL }}"
