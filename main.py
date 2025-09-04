@@ -42,8 +42,8 @@ class DatabaseManager:
 
 class TelegramBot:
     def __init__(self):
-        self.bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
-        self.bot_chat_id = os.getenv('TELEGRAM_CHAT_ID')
+        self.bot_token = os.getenv('BOT_TOKEN')
+        self.bot_chat_id = os.getenv('CHAT_ID')
         self.bot = telegram.Bot(token=self.bot_token)
 
     async def send_message(self, message):
