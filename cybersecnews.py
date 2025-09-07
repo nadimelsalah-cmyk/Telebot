@@ -1,30 +1,32 @@
 import asyncio
 from playwright.async_api import async_playwright
-from main import DatabaseManager  # Use your existing DB manager
+from main import DatabaseManager, TelegramBot  # Your existing classes
 
 db_manager = DatabaseManager()
+telegram_bot = TelegramBot()
 
 
 async def scrape_latest_article():
-    """Scrape the latest article from CybersecurityNews."""
-    url = "https://cybersecuritynews.com/"
+    """Scrape the latest news article from CybersecurityNews Threats using Playwright."""
+    url = "https://cybersecuritynews.com/category/threats/"
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
-
-        # Set headers to look like a real browser
         await page.goto(url, wait_until="domcontentloaded")
 
-        # Select the first article (from your provided HTML)
+        # Grab the first article title and link
         first_article = await page.query_selector("div.td_module_flex h3.entry-title a")
 
         if first_article:
             title = await first_article.inner_text()
             link = await first_article.get_attribute("href")
 
-            source = "cybersecuritynews.com"
+            # Normalize relative links (just in case)
+            if link and link.startswith("/"):
+                link = f"https://cybersecuritynews.com{link}"
 
+            source = "cybersecuritynews.com"
             await browser.close()
             return title, link, source
 
@@ -41,8 +43,9 @@ async def main():
 
         if link and not db_manager.is_article_sent(link):
             message = f"Title: {title}\nLink: {link}\nSource: {source}"
-            print("New article found:\n", message)
+            await telegram_bot.send_message(message)
             db_manager.mark_article_as_sent(link)
+            print("Sent:", message)
         else:
             print("Article already sent or invalid link.")
     else:
