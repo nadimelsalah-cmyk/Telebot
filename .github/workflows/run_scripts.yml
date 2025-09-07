@@ -77,6 +77,9 @@ jobs:
 
       - name: Run hackreadsec script
         run: python hackreadsec.py
+
+      - name: Run cybernews script
+        run: python cybernews.py
         
       - name: Re-encrypt database
         run: |
